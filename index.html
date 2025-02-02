@@ -1,0 +1,280 @@
+<img src="Cardápio.jpg" alt="Cardápio do restaurante" style="display: block; margin: 0 auto; width: 100%; max-width: 400px; height: auto;">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedido de Delivery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #002a7b; /* Azul #002a7b */
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: white; /* Cor do texto do título */
+    }
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px; /* Espaçamento interno do formulário */
+      background-color: #000; /* Preto para o formulário */
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      color: white; /* Cor do texto em branco */
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input, select, textarea {
+      width: calc(100% - 20px); /* Ajusta a largura para ter padding */
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #333; /* Cinza um pouco mais claro para contraste */
+      color: white;
+    }
+    .item-row {
+      display: flex;
+      gap: 10px;
+      padding: 10px; /* Espaçamento interno da linha */
+    }
+    .item-row select, .item-row input {
+      width: 32%;
+      background-color: #000; /* Preto */
+    }
+    .add-item {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .taxa-fixa {
+      background-color: #333; /* Mesma cor do formulário */
+      border: none;
+      color: white;
+      font-weight: bold;
+    }
+    button {
+      padding: 8px 15px; /* Diminui o espaçamento interno */
+      background-color: #002a7b; /* Azul do fundo da página */
+      color: white;
+      font-size: 14px; /* Diminui o tamanho da fonte */
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #001e56; /* Azul mais escuro */
+      transition: background-color 0.3s ease; /* Adiciona transição suave */
+    }
+    /* Adiciona o estilo para a área de observações */
+    textarea {
+      background-color: #000; /* Preto */
+    }
+    /* Estilo específico para o botão "Remover" */
+    .item-row button {
+      width: 32%; /* Mesma largura dos outros elementos */
+      padding: 8px 15px; /* Mesma altura e padding */
+      font-size: 14px; /* Mesma fonte */
+    }
+    /* Estilo para o botão "Adicionar Item" */
+    .add-item button,
+    form button[type="submit"] { /* Estilos para o "Enviar Pedido" */
+      width: 100%; /* Ocupa toda a largura da div */
+      padding: 12px 20px; /* Aumenta o padding */
+      font-size: 16px; /* Aumenta o tamanho da fonte */
+    }
+  </style>
+  <script>
+    // Lista de produtos, preços e emojis
+    const produtos = {
+      "Pizza Margherita": { preco: 35, emoji: "🍕" },
+      "Pepperoni Tradicional": { preco: 38, emoji: "🍕" },
+      "Pizza Mediterrânea": { preco: 45, emoji: "🍕" },
+      "Pizza Quatro Queijos": { preco: 50, emoji: "🍕" },
+      "Hambúrguer Duplo": { preco: 25, emoji: "🍔" },
+      "Hambúrguer com Pimenta": { preco: 26, emoji: "🍔" },
+      "Hambúrguer Completo": { preco: 22, emoji: "🍔" },
+      "Hambúrguer com Salame": { preco: 24, emoji: "🍔" },
+      "Refrigerante Soda": { preco: 10, emoji: "🥤" },
+      "Refrigerante Guaraná": { preco: 4, emoji: "🥤" },
+      "Coca Cola": { preco: 5, emoji: "🥤" },
+      "Guaraná Antarctica Zero": { preco: 4, emoji: "🥤" },
+      "Batata Frita com Queijo": { preco: 15, emoji: "🍟" },
+      "Batata Frita Clássica": { preco: 10, emoji: "🍟" },
+      "Batata Frita com Molho": { preco: 14, emoji: "🍟" }
+    };
+    // Função para adicionar um novo item no pedido
+    function adicionarItem() {
+      const itensContainer = document.getElementById("itens-container");
+      const novoItem = document.createElement("div");
+      novoItem.className = "item-row";
+      novoItem.innerHTML = `
+        <select onchange="atualizarPrecoTotal(this)">
+          <option value="">Selecione o produto</option>
+          ${Object.keys(produtos).map(produto => `<option value="${produto}">${produtos[produto].emoji} ${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`).join('')}
+        </select>
+        <select onchange="atualizarPrecoTotal(this)">
+          <option value="1">Quantidade: 1</option>
+          <option value="2">Quantidade: 2</option>
+          <option value="3">Quantidade: 3</option>
+          <option value="4">Quantidade: 4</option>
+          <option value="5">Quantidade: 5</option>
+          <option value="6">Quantidade: 6</option>
+          <option value="7">Quantidade: 7</option>
+          <option value="8">Quantidade: 8</option>
+          <option value="9">Quantidade: 9</option>
+          <option value="10">Quantidade: 10</option>
+        </select>
+        <input type="number" placeholder="Preço Total (R$)" step="0.01" readonly>
+        <button onclick="removerItem(this)">Remover</button>
+      `;
+      itensContainer.appendChild(novoItem);
+    }
+    // Função para atualizar o preço total do item
+    function atualizarPrecoTotal(selectElement) {
+      const itemRow = selectElement.parentElement;
+      const produto = itemRow.querySelector('select:nth-child(1)').value;
+      const quantidade = itemRow.querySelector('select:nth-child(2)').value;
+      if (produto && quantidade) {
+        const precoTotal = (produtos[produto].preco * quantidade).toFixed(2);
+        itemRow.querySelector('input').value = precoTotal;
+        calcularTotal();
+      } else {
+        itemRow.querySelector('input').value = '';
+        calcularTotal();
+      }
+    }
+    // Função para calcular o total do pedido
+    function calcularTotal() {
+      const itensContainer = document.getElementById("itens-container").children;
+      let total = 0;
+      // Verifica se há itens no pedido
+      if (itensContainer.length > 0) {
+        for (let i = 0; i < itensContainer.length; i++) {
+          const item = itensContainer[i].children;
+          const precoTotal = parseFloat(item[2].value) || 0;
+          total += precoTotal;
+        }
+        const taxaEntrega = parseFloat(document.getElementById("taxa").value) || 0;
+        const totalPedido = total + taxaEntrega;
+        document.getElementById("total").value = totalPedido.toFixed(2);
+      } else {
+        // Se não houver itens, zera o total
+        document.getElementById("total").value = '0.00';
+      }
+    }
+    // Função para enviar o pedido via WhatsApp
+    function enviarPedido() {
+      const nome = document.getElementById("nome").value;
+      const endereco = document.getElementById("endereco").value;
+      const taxa = document.getElementById("taxa").value;
+      const pagamento = document.getElementById("pagamento").value;
+      const total = document.getElementById("total").value;
+      const observacoes = document.getElementById("observacoes").value;
+      const itensContainer = document.getElementById("itens-container").children;
+      let itens = "";
+      for (let i = 0; i < itensContainer.length; i++) {
+        const item = itensContainer[i].children;
+        const nomeItem = item[0].value;
+        const quantidade = item[1].value;
+        const precoTotal = item[2].value;
+        itens += `${produtos[nomeItem].emoji} ${nomeItem} x${quantidade} - R$ ${precoTotal}%0A`;
+      }
+      let mensagem = `*Pedido de Delivery*%0A%0A📋 *Dados do Cliente:*%0A- Nome: ${nome}%0A- Endereço: ${endereco}%0A%0A📦 *Itens do Pedido:*%0A${itens}%0A%0A💵 *Forma de Pagamento:* `;
+
+      if (pagamento === 'PIX') {
+        mensagem += `PIX - Chave: renimarfilho000@gmail.com %0A`; // Substitua 'chavepix' pela chave PIX do estabelecimento
+      } else if (pagamento === 'Cartão de Crédito' || pagamento === 'Cartão de Débito') {
+        mensagem += `Cartão - Link para Pagamento: link.mercadopago.com.br/flowmize %0A`; // Substitua 'linkpagamento' pelo link do cartão de crédito/débito
+      } else if (pagamento === 'Dinheiro') {
+        mensagem += `Dinheiro %0A`; // Não precisa de alteração
+      }
+
+      mensagem += `🚚 *Taxa de Entrega:* R$ ${taxa}%0A🔴 *Total do Pedido:* R$ ${total}%0A%0A*Observações:* ${observacoes}`;
+      const telefone = "98981729088"; //Substitua pelo número correto
+      if (total > 0) { // Verifica se o total é maior que zero
+        const url = `https://wa.me/55${telefone}?text=${mensagem}`;
+        window.open(url, "_blank");
+      } else {
+        // Mostra um alerta caso o total seja zero
+        alert("Por favor, adicione pelo menos um item ao seu pedido.");
+      }
+    }
+    // Função para remover um item do carrinho
+    function removerItem(button) {
+      const itemRow = button.parentElement;
+      itemRow.remove(); // Remove a linha do item do carrinho
+      calcularTotal(); // Recalcula o total do pedido
+    }
+  </script>
+</head>
+<body>
+  <h1>Pedido de Delivery</h1>
+  <form onsubmit="event.preventDefault(); enviarPedido();">
+    <label for="nome">Nome do Cliente:</label>
+    <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
+    <label for="endereco">Endereço de Entrega:</label>
+    <input type="text" id="endereco" name="endereco" placeholder="Digite seu endereço" required>
+    <label>Itens do Pedido:</label>
+    <div id="itens-container" class="itens-container">
+      <div class="item-row">
+        <select onchange="atualizarPrecoTotal(this)">
+          <option value="">Selecione o produto</option>
+          <option value="Pizza Margherita">🍕 Pizza Margherita - R$ 35.00</option>
+          <option value="Pepperoni Tradicional">🍕 Pepperoni Tradicional - R$ 38.00</option>
+          <option value="Pizza Mediterrânea">🍕 Pizza Mediterrânea - R$ 45.00</option>
+          <option value="Pizza Quatro Queijos">🍕 Pizza Quatro Queijos - R$ 50.00</option>
+          <option value="Hambúrguer Duplo">🍔 Hambúrguer Duplo - R$ 25.00</option>
+          <option value="Hambúrguer com Pimenta">🍔 Hambúrguer com Pimenta - R$ 26.00</option>
+          <option value="Hambúrguer Completo">🍔 Hambúrguer Completo - R$ 22.00</option>
+          <option value="Hambúrguer com Salame">🍔 Hambúrguer com Salame - R$ 24.00</option>
+          <option value="Refrigerante Soda">🥤 Refrigerante Soda - R$ 10.00</option>
+          <option value="Refrigerante Guaraná">🥤 Refrigerante Guaraná - R$ 4.00</option>
+          <option value="Coca Cola">🥤 Coca Cola - R$ 5.00</option>
+          <option value="Guaraná Antarctica Zero">🥤 Guaraná Antarctica Zero - R$ 4.00</option>
+          <option value="Batata Frita com Queijo">🍟 Batata Frita com Queijo - R$ 15.00</option>
+          <option value="Batata Frita Clássica">🍟 Batata Frita Clássica - R$ 10.00</option>
+          <option value="Batata Frita com Molho">🍟 Batata Frita com Molho - R$ 14.00</option>
+        </select>
+        <select onchange="atualizarPrecoTotal(this)">
+          <option value="1">Quantidade: 1</option>
+          <option value="2">Quantidade: 2</option>
+          <option value="3">Quantidade: 3</option>
+          <option value="4">Quantidade: 4</option>
+          <option value="5">Quantidade: 5</option>
+          <option value="6">Quantidade: 6</option>
+          <option value="7">Quantidade: 7</option>
+          <option value="8">Quantidade: 8</option>
+          <option value="9">Quantidade: 9</option>
+          <option value="10">Quantidade: 10</option>
+        </select>
+        <input type="number" placeholder="Preço Total (R$)" step="0.01" readonly>
+        <button onclick="removerItem(this)">Remover</button>
+      </div>
+    </div>
+    <div class="add-item">
+      <button type="button" onclick="adicionarItem()">Adicionar Item</button>
+    </div>
+    <label for="taxa">Taxa de Entrega (R$):</label>
+    <input type="number" id="taxa" name="taxa" value="4.00" class="taxa-fixa" readonly>
+    <label for="pagamento">Forma de Pagamento:</label>
+    <select id="pagamento" name="pagamento" required>
+      <option value="Dinheiro">Dinheiro</option>
+      <option value="Cartão de Crédito">Cartão de Crédito</option>
+      <option value="Cartão de Débito">Cartão de Débito</option>
+      <option value="PIX">PIX</option>
+    </select>
+    <label for="observacoes">Observações:</label>
+    <textarea id="observacoes" name="observacoes" placeholder="Digite suas observações" rows="4"></textarea>
+    <label for="total">Total:</label>
+    <input type="number" id="total" name="total" placeholder="Total do Pedido" readonly>
+    <button type="submit">Enviar Pedido</button>
+  </form>
+</body>
+</html>
+
