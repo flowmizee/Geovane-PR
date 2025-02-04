@@ -185,8 +185,7 @@
         const precoTotal = item[2].value;
         itens += `${produtos[nomeItem].emoji} ${nomeItem} x${quantidade} - R$ ${precoTotal}%0A`;
       }
-      let mensagem = `*Pedido de Delivery*%0A%0A📋 *Dados do Cliente:*%0A- Nome: ${nome}%0A- Endereço: ${endereco}%0A%0A📦 *Itens do Pedido:*%0A${itens}%0A%0A💵 *Forma de Pagamento:* `;
-
+      let mensagem = `*PEDIDO*%0A%0A📋 *Dados do Cliente:*%0A- Nome: ${nome}%0A- Endereço: ${endereco}%0A%0A📦 *Itens do Pedido:*%0A${itens}%0A%0A💵 *Forma de Pagamento:* `;
       if (pagamento === 'PIX') {
         mensagem += `PIX - Chave: renimarfilho000@gmail.com %0A`; // Substitua 'chavepix' pela chave PIX do estabelecimento
       } else if (pagamento === 'Cartão de Crédito' || pagamento === 'Cartão de Débito') {
@@ -194,7 +193,6 @@
       } else if (pagamento === 'Dinheiro') {
         mensagem += `Dinheiro %0A`; // Não precisa de alteração
       }
-
       mensagem += `🚚 *Taxa de Entrega:* R$ ${taxa}%0A🔴 *Total do Pedido:* R$ ${total}%0A%0A*Observações:* ${observacoes}`;
       const telefone = "98981729088"; //Substitua pelo número correto
       if (total > 0) { // Verifica se o total é maior que zero
@@ -214,8 +212,8 @@
   </script>
 </head>
 <body>
-  <h1>Pedido de Delivery</h1>
   <form onsubmit="event.preventDefault(); enviarPedido();">
+    <h1>PEDIDO 🍕🍔🥤🍟</h1>
     <label for="nome">Nome do Cliente:</label>
     <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
     <label for="endereco">Endereço de Entrega:</label>
@@ -277,3 +275,4 @@
   </form>
 </body>
 </html>
+
