@@ -9,6 +9,8 @@
       font-family: Arial, sans-serif;
       background-color: #002a7b; /* Azul #002a7b */
       margin: 20px;
+      background-image: radial-gradient(circle at center bottom, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0) 100%); /* Brilho sutil na parte inferior */
+      background-size: cover;
     }
     h1 {
       text-align: center;
@@ -22,7 +24,6 @@
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       color: white; /* Cor do texto em branco */
-      margin-top: 20px; /* Adiciona espaçamento superior */
     }
     label {
       font-weight: bold;
@@ -87,6 +88,31 @@
       width: 100%; /* Ocupa toda a largura da div */
       padding: 12px 20px; /* Aumenta o padding */
       font-size: 16px; /* Aumenta o tamanho da fonte */
+    }
+    .status-container {
+      /* Estilos para o container */
+      background-color: #000; /* Preto para o container */
+      color: #fff;
+      padding: 25px 50px; /* Aumenta o padding */
+      border-radius: 8px; /* Arredonda as bordas */
+      text-align: center;
+      margin: 30px auto; /* Adiciona margem superior e centraliza */
+      font-size: 18px; /* Aumenta o tamanho da fonte */
+      display: flex; /* Usa flexbox para o alinhamento */
+      align-items: center; /* Alinha os itens verticalmente no centro */
+      justify-content: center; /* Alinha os itens horizontalmente no centro */
+      max-width: 600px; /* Limita a largura do container */
+    }
+    /* Estilos para as mensagens "Estamos Fechado" e "Estamos Aberto" */
+    .status-container.fechado {
+      background-color: #000; /* Preto para "Estamos Fechado" */
+      color: #fff;  /* Branco para o texto */
+      font-size: 24px; /* Aumenta o tamanho da fonte */
+    }
+    .status-container.aberto {
+      background-color: #000; /* Preto para "Estamos Aberto" */
+      color: #fff;  /* Branco para o texto */
+      font-size: 24px; /* Aumenta o tamanho da fonte */
     }
   </style>
   <script>
@@ -178,13 +204,25 @@
       const observacoes = document.getElementById("observacoes").value;
       const itensContainer = document.getElementById("itens-container").children;
       let itens = "";
+      let temProdutoVazio = false;
+
       for (let i = 0; i < itensContainer.length; i++) {
         const item = itensContainer[i].children;
-        const nomeItem = item[0].value;
+        const produtoSelecionado = item[0].value;
+        if (produtoSelecionado === "") {
+          temProdutoVazio = true;
+          break; // Sai do loop assim que encontra um item com produto vazio
+        }
         const quantidade = item[1].value;
         const precoTotal = item[2].value;
-        itens += `${produtos[nomeItem].emoji} ${nomeItem} x${quantidade} - R$ ${precoTotal}%0A`;
+        itens += `${produtos[produtoSelecionado].emoji} ${produtoSelecionado} x${quantidade} - R$ ${precoTotal}%0A`;
       }
+
+      if (temProdutoVazio) {
+        alert("Por favor, selecione um produto ou remova os itens vazios do seu pedido.");
+        return; // Impede o envio do pedido
+      }
+
       let mensagem = `*PEDIDO*%0A%0A📋 *Dados do Cliente:*%0A- Nome: ${nome}%0A- Endereço: ${endereco}%0A%0A📦 *Itens do Pedido:*%0A${itens}%0A%0A💵 *Forma de Pagamento:* `;
       if (pagamento === 'PIX') {
         mensagem += `PIX - Chave: renimarfilho000@gmail.com %0A`; // Substitua 'chavepix' pela chave PIX do estabelecimento
@@ -209,9 +247,32 @@
       itemRow.remove(); // Remove a linha do item do carrinho
       calcularTotal(); // Recalcula o total do pedido
     }
+    // Função para atualizar a mensagem de status (aberto/fechado)
+    function atualizarStatus() {
+      const statusContainer = document.getElementById("status-container");
+      const now = new Date();
+      const saoPauloTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const saoPauloTime = new Date(now.toLocaleString('pt-BR', { timeZone: saoPauloTimeZone }));
+      const startTime = new Date(saoPauloTime.getFullYear(), saoPauloTime.getMonth(), saoPauloTime.getDate(), 18, 0, 0);
+      const endTime = new Date(saoPauloTime.getFullYear(), saoPauloTime.getMonth(), saoPauloTime.getDate(), 22, 0, 0);
+      if (saoPauloTime >= startTime && saoPauloTime <= endTime) {
+        statusContainer.innerHTML = "Estamos Abertos 🥳"; // Adiciona o emoji "🥳"
+        statusContainer.classList.add("aberto"); // Adiciona a classe "aberto"
+        statusContainer.classList.remove("fechado"); // Remove a classe "fechado"
+      } else {
+        statusContainer.innerHTML = "Estamos Fechados 😕"; // Adiciona o emoji "😕"
+        statusContainer.classList.add("fechado"); // Adiciona a classe "fechado"
+        statusContainer.classList.remove("aberto"); // Remove a classe "aberto"
+      }
+    }
+    // Chama a função atualizarStatus() a cada segundo
+    setInterval(atualizarStatus, 1000);
   </script>
 </head>
 <body>
+  <div class="status-container" id="status-container">
+    <!-- Aqui vai aparecer a mensagem "Estamos Abertos" ou "Estamos Fechados" -->
+  </div>
   <form onsubmit="event.preventDefault(); enviarPedido();">
     <h1>PEDIDO 🍕🍔🥤🍟</h1>
     <label for="nome">Nome do Cliente:</label>
@@ -220,40 +281,7 @@
     <input type="text" id="endereco" name="endereco" placeholder="Digite seu endereço" required>
     <label>Itens do Pedido:</label>
     <div id="itens-container" class="itens-container">
-      <div class="item-row">
-        <select onchange="atualizarPrecoTotal(this)">
-          <option value="">Selecione o produto</option>
-          <option value="Pizza Margherita">🍕 Pizza Margherita - R$ 35.00</option>
-          <option value="Pepperoni Tradicional">🍕 Pepperoni Tradicional - R$ 38.00</option>
-          <option value="Pizza Mediterrânea">🍕 Pizza Mediterrânea - R$ 45.00</option>
-          <option value="Pizza Quatro Queijos">🍕 Pizza Quatro Queijos - R$ 50.00</option>
-          <option value="Hambúrguer Duplo">🍔 Hambúrguer Duplo - R$ 25.00</option>
-          <option value="Hambúrguer com Pimenta">🍔 Hambúrguer com Pimenta - R$ 26.00</option>
-          <option value="Hambúrguer Completo">🍔 Hambúrguer Completo - R$ 22.00</option>
-          <option value="Hambúrguer com Salame">🍔 Hambúrguer com Salame - R$ 24.00</option>
-          <option value="Refrigerante Soda">🥤 Refrigerante Soda - R$ 10.00</option>
-          <option value="Refrigerante Guaraná">🥤 Refrigerante Guaraná - R$ 4.00</option>
-          <option value="Coca Cola">🥤 Coca Cola - R$ 5.00</option>
-          <option value="Guaraná Antarctica Zero">🥤 Guaraná Antarctica Zero - R$ 4.00</option>
-          <option value="Batata Frita com Queijo">🍟 Batata Frita com Queijo - R$ 15.00</option>
-          <option value="Batata Frita Clássica">🍟 Batata Frita Clássica - R$ 10.00</option>
-          <option value="Batata Frita com Molho">🍟 Batata Frita com Molho - R$ 14.00</option>
-        </select>
-        <select onchange="atualizarPrecoTotal(this)">
-          <option value="1">Quantidade: 1</option>
-          <option value="2">Quantidade: 2</option>
-          <option value="3">Quantidade: 3</option>
-          <option value="4">Quantidade: 4</option>
-          <option value="5">Quantidade: 5</option>
-          <option value="6">Quantidade: 6</option>
-          <option value="7">Quantidade: 7</option>
-          <option value="8">Quantidade: 8</option>
-          <option value="9">Quantidade: 9</option>
-          <option value="10">Quantidade: 10</option>
-        </select>
-        <input type="number" placeholder="Preço Total (R$)" step="0.01" readonly>
-        <button onclick="removerItem(this)">Remover</button>
-      </div>
+      <!-- REMOVIDO: <div class="item-row"> ... </div> -->
     </div>
     <div class="add-item">
       <button type="button" onclick="adicionarItem()">Adicionar Item</button>
@@ -274,5 +302,5 @@
     <button type="submit">Enviar Pedido</button>
   </form>
 </body>
-</html>
-
+        </html>
+        
