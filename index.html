@@ -9,7 +9,7 @@
       font-family: Arial, sans-serif;
       background-color: #002a7b; /* Azul #002a7b */
       margin: 20px;
-      background-image: radial-gradient(circle at center bottom, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0) 100%); /* Brilho sutil na parte inferior */
+      background-image: radial-gradient(circle at center bottom, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0) 100%);
       background-size: cover;
     }
     h1 {
@@ -116,24 +116,61 @@
     }
   </style>
   <script>
-    // Lista de produtos, preços e emojis
-    const produtos = {
-      "Pizza Margherita": { preco: 35, emoji: "🍕" },
-      "Pepperoni Tradicional": { preco: 38, emoji: "🍕" },
-      "Pizza Mediterrânea": { preco: 45, emoji: "🍕" },
-      "Pizza Quatro Queijos": { preco: 50, emoji: "🍕" },
-      "Hambúrguer Duplo": { preco: 25, emoji: "🍔" },
-      "Hambúrguer com Pimenta": { preco: 26, emoji: "🍔" },
-      "Hambúrguer Completo": { preco: 22, emoji: "🍔" },
-      "Hambúrguer com Salame": { preco: 24, emoji: "🍔" },
-      "Refrigerante Soda": { preco: 10, emoji: "🥤" },
-      "Refrigerante Guaraná": { preco: 4, emoji: "🥤" },
-      "Coca Cola": { preco: 5, emoji: "🥤" },
-      "Guaraná Antarctica Zero": { preco: 4, emoji: "🥤" },
-      "Batata Frita com Queijo": { preco: 15, emoji: "🍟" },
-      "Batata Frita Clássica": { preco: 10, emoji: "🍟" },
-      "Batata Frita com Molho": { preco: 14, emoji: "🍟" }
-    };
+    // Objeto que armazenará os produtos carregados da planilha
+    const produtos = {}; // Inicialmente vazio
+    // Função para carregar os dados da planilha do Google Sheets (CSV)
+    async function carregarProdutosDaPlanilha() {
+      // URL da sua planilha publicada em formato CSV:
+      const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrtGErWiwjhuVjEZgUe-6WbKpgCe8vxS1RiFXJ8QUcPthAtb0oCJJHbBX55oDghCNI_dIXz2_i4sVr/pub?output=csv";
+      try {
+        const resposta = await fetch(url);
+        const csvText = await resposta.text();
+        // Divide o CSV em linhas e remove as linhas vazias
+        const linhas = csvText.split("\n").map(linha => linha.trim()).filter(linha => linha);
+        // Remove a primeira linha (cabeçalho)
+        linhas.shift();
+        // Limpa o objeto produtos antes de adicionar os novos dados
+        for (const key in produtos) {
+          delete produtos[key];
+        }
+        // Para cada linha, assumindo que as colunas são: Nome do Produto, Preço, Emoji
+        linhas.forEach(linha => {
+          const colunas = linha.split(",").map(coluna => coluna.trim());
+          const nome = colunas[0];
+          // Substitua vírgula por ponto se necessário para o preço
+          const preco = parseFloat(colunas[1].replace(",", "."));
+          const emoji = colunas[2];
+          // Atualiza o objeto produtos
+          produtos[nome] = { preco, emoji };
+        });
+        console.log("Produtos carregados da planilha:", produtos);
+        // Atualiza os selects dos itens já existentes para mostrar as opções atualizadas
+        atualizarSelectProdutos();
+      } catch (error) {
+        console.error("Erro ao carregar os produtos da planilha:", error);
+      }
+    }
+    // Função para atualizar os selects de produto, preservando o valor selecionado se existir
+    function atualizarSelectProdutos() {
+      const selects = document.querySelectorAll("#itens-container .item-row select:first-child");
+      selects.forEach(select => {
+        const currentValue = select.value; // Armazena o valor atual
+        let optionsHTML = `<option value="">Selecione o produto</option>`;
+        optionsHTML += Object.keys(produtos)
+          .map(produto => `<option value="${produto}">${produtos[produto].emoji} ${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`)
+          .join('');
+        select.innerHTML = optionsHTML;
+        // Restaura o valor selecionado, se ele existir nas novas opções
+        if (currentValue && optionsHTML.indexOf(`value="${currentValue}"`) !== -1) {
+          select.value = currentValue;
+        }
+      });
+    }
+    // Chama a função para carregar os produtos da planilha quando o DOM estiver pronto
+    window.addEventListener('DOMContentLoaded', function() {
+      carregarProdutosDaPlanilha();
+      atualizarStatus(); // Inicia a atualização do status
+    });
     // Função para adicionar um novo item no pedido
     function adicionarItem() {
       const itensContainer = document.getElementById("itens-container");
@@ -142,24 +179,19 @@
       novoItem.innerHTML = `
         <select onchange="atualizarPrecoTotal(this)">
           <option value="">Selecione o produto</option>
-          ${Object.keys(produtos).map(produto => `<option value="${produto}">${produtos[produto].emoji} ${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`).join('')}
+          ${Object.keys(produtos)
+            .map(produto => `<option value="${produto}">${produtos[produto].emoji} ${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`)
+            .join('')}
         </select>
         <select onchange="atualizarPrecoTotal(this)">
-          <option value="1">Quantidade: 1</option>
-          <option value="2">Quantidade: 2</option>
-          <option value="3">Quantidade: 3</option>
-          <option value="4">Quantidade: 4</option>
-          <option value="5">Quantidade: 5</option>
-          <option value="6">Quantidade: 6</option>
-          <option value="7">Quantidade: 7</option>
-          <option value="8">Quantidade: 8</option>
-          <option value="9">Quantidade: 9</option>
-          <option value="10">Quantidade: 10</option>
+          ${[...Array(10)].map((_, i) => `<option value="${i + 1}">Quantidade: ${i + 1}</option>`).join('')}
         </select>
         <input type="number" placeholder="Preço Total (R$)" step="0.01" readonly>
         <button onclick="removerItem(this)">Remover</button>
       `;
       itensContainer.appendChild(novoItem);
+      // Atualiza o select deste novo item, caso os produtos já tenham sido carregados
+      atualizarSelectProdutos();
     }
     // Função para atualizar o preço total do item
     function atualizarPrecoTotal(selectElement) {
@@ -179,7 +211,6 @@
     function calcularTotal() {
       const itensContainer = document.getElementById("itens-container").children;
       let total = 0;
-      // Verifica se há itens no pedido
       if (itensContainer.length > 0) {
         for (let i = 0; i < itensContainer.length; i++) {
           const item = itensContainer[i].children;
@@ -190,14 +221,19 @@
         const totalPedido = total + taxaEntrega;
         document.getElementById("total").value = totalPedido.toFixed(2);
       } else {
-        // Se não houver itens, zera o total
         document.getElementById("total").value = '0.00';
       }
     }
-    // Função para enviar o pedido via WhatsApp
+    // Função para enviar o pedido via WhatsApp com mensagem formatada
     function enviarPedido() {
       const nome = document.getElementById("nome").value;
-      const endereco = document.getElementById("endereco").value;
+      const cidade = document.getElementById("cidade").value;
+      const bairro = document.getElementById("bairro").value;
+      const rua = document.getElementById("rua").value;
+      const numero = document.getElementById("numero").value;
+      const complemento = document.getElementById("complemento").value;
+      const referencia = document.getElementById("referencia").value;
+      const endereco = `${cidade}, ${bairro}, ${rua}, ${numero}`; // Concatenando o endereço
       const taxa = document.getElementById("taxa").value;
       const pagamento = document.getElementById("pagamento").value;
       const total = document.getElementById("total").value;
@@ -205,47 +241,50 @@
       const itensContainer = document.getElementById("itens-container").children;
       let itens = "";
       let temProdutoVazio = false;
-
       for (let i = 0; i < itensContainer.length; i++) {
         const item = itensContainer[i].children;
         const produtoSelecionado = item[0].value;
         if (produtoSelecionado === "") {
           temProdutoVazio = true;
-          break; // Sai do loop assim que encontra um item com produto vazio
+          break;
         }
         const quantidade = item[1].value;
         const precoTotal = item[2].value;
-        itens += `${produtos[produtoSelecionado].emoji} ${produtoSelecionado} x${quantidade} - R$ ${precoTotal}%0A`;
+        itens += `${produtos[produtoSelecionado].emoji} ${produtoSelecionado} x${quantidade} - R$ ${precoTotal}\n`;
       }
-
       if (temProdutoVazio) {
         alert("Por favor, selecione um produto ou remova os itens vazios do seu pedido.");
-        return; // Impede o envio do pedido
+        return;
       }
-
-      let mensagem = `*PEDIDO*%0A%0A📋 *Dados do Cliente:*%0A- Nome: ${nome}%0A- Endereço: ${endereco}%0A%0A📦 *Itens do Pedido:*%0A${itens}%0A%0A💵 *Forma de Pagamento:* `;
+      let mensagem = `*PEDIDO*\n\n📋 *Dados do Cliente:*\n- Nome: ${nome}\n- Endereço: ${endereco}`; // Adicionando o complemento ao endereço
+      if (complemento) {
+        mensagem += `\n- Complemento: ${complemento}`;
+      }
+      if (referencia) {
+        mensagem += `\n- Referência: ${referencia}`;
+      }
+      mensagem += `\n\n📦 *Itens do Pedido:*\n${itens}\n💵 *Forma de Pagamento:* `;
       if (pagamento === 'PIX') {
-        mensagem += `PIX - Chave: renimarfilho000@gmail.com %0A`; // Substitua 'chavepix' pela chave PIX do estabelecimento
+        mensagem += `PIX - Chave: renimarfilho000@gmail.com\n`;
       } else if (pagamento === 'Cartão de Crédito' || pagamento === 'Cartão de Débito') {
-        mensagem += `Cartão - Link para Pagamento: link.mercadopago.com.br/flowmize %0A`; // Substitua 'linkpagamento' pelo link do cartão de crédito/débito
+        mensagem += `Cartão - Link para Pagamento: link.mercadopago.com.br/flowmize\n`;
       } else if (pagamento === 'Dinheiro') {
-        mensagem += `Dinheiro %0A`; // Não precisa de alteração
+        mensagem += `Dinheiro\n`;
       }
-      mensagem += `🚚 *Taxa de Entrega:* R$ ${taxa}%0A🔴 *Total do Pedido:* R$ ${total}%0A%0A*Observações:* ${observacoes}`;
-      const telefone = "98981729088"; //Substitua pelo número correto
-      if (total > 0) { // Verifica se o total é maior que zero
-        const url = `https://wa.me/55${telefone}?text=${mensagem}`;
+      mensagem += `🚚 *Taxa de Entrega:* R$ ${taxa}\n🔴 *Total do Pedido:* R$ ${total}\n\n*Observações:* ${observacoes}`;
+      const telefone = "98981729088";
+      if (total > 0) {
+        const url = `whatsapp://send?phone=55${telefone}&text=${encodeURIComponent(mensagem)}`;
         window.open(url, "_blank");
       } else {
-        // Mostra um alerta caso o total seja zero
         alert("Por favor, adicione pelo menos um item ao seu pedido.");
       }
     }
     // Função para remover um item do carrinho
     function removerItem(button) {
       const itemRow = button.parentElement;
-      itemRow.remove(); // Remove a linha do item do carrinho
-      calcularTotal(); // Recalcula o total do pedido
+      itemRow.remove();
+      calcularTotal();
     }
     // Função para atualizar a mensagem de status (aberto/fechado)
     function atualizarStatus() {
@@ -256,16 +295,16 @@
       const startTime = new Date(saoPauloTime.getFullYear(), saoPauloTime.getMonth(), saoPauloTime.getDate(), 18, 0, 0);
       const endTime = new Date(saoPauloTime.getFullYear(), saoPauloTime.getMonth(), saoPauloTime.getDate(), 22, 0, 0);
       if (saoPauloTime >= startTime && saoPauloTime <= endTime) {
-        statusContainer.innerHTML = "Estamos Abertos 🥳"; // Adiciona o emoji "🥳"
-        statusContainer.classList.add("aberto"); // Adiciona a classe "aberto"
-        statusContainer.classList.remove("fechado"); // Remove a classe "fechado"
+        statusContainer.innerHTML = "Estamos Abertos 🥳";
+        statusContainer.classList.add("aberto");
+        statusContainer.classList.remove("fechado");
       } else {
-        statusContainer.innerHTML = "Estamos Fechados 😕"; // Adiciona o emoji "😕"
-        statusContainer.classList.add("fechado"); // Adiciona a classe "fechado"
-        statusContainer.classList.remove("aberto"); // Remove a classe "aberto"
+        statusContainer.innerHTML = "Estamos Fechados 😕";
+        statusContainer.classList.add("fechado");
+        statusContainer.classList.remove("aberto");
       }
     }
-    // Chama a função atualizarStatus() a cada segundo
+    // Atualiza o status a cada segundo
     setInterval(atualizarStatus, 1000);
   </script>
 </head>
@@ -278,10 +317,33 @@
     <label for="nome">Nome do Cliente:</label>
     <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
     <label for="endereco">Endereço de Entrega:</label>
-    <input type="text" id="endereco" name="endereco" placeholder="Digite seu endereço" required>
+    <div>
+      <label for="cidade">Cidade:</label>
+      <input type="text" id="cidade" name="cidade" placeholder="Digite sua cidade" required>
+    </div>
+    <div>
+      <label for="bairro">Bairro:</label>
+      <input type="text" id="bairro" name="bairro" placeholder="Digite seu bairro" required>
+    </div>
+    <div>
+      <label for="rua">Rua:</label>
+      <input type="text" id="rua" name="rua" placeholder="Digite sua rua" required>
+    </div>
+    <div>
+      <label for="numero">Número:</label>
+      <input type="text" id="numero" name="numero" placeholder="Digite o número" required>
+    </div>
+    <div>
+      <label for="complemento">Complemento:</label>
+      <input type="text" id="complemento" name="complemento" placeholder="Digite o complemento (opcional)">
+    </div>
+    <div>
+      <label for="referencia">Ponto de Referência:</label>
+      <input type="text" id="referencia" name="referencia" placeholder="Digite um ponto de referência (opcional)">
+    </div>
     <label>Itens do Pedido:</label>
     <div id="itens-container" class="itens-container">
-      <!-- REMOVIDO: <div class="item-row"> ... </div> -->
+      <!-- Os itens serão inseridos dinamicamente -->
     </div>
     <div class="add-item">
       <button type="button" onclick="adicionarItem()">Adicionar Item</button>
@@ -301,6 +363,10 @@
     <input type="number" id="total" name="total" placeholder="Total do Pedido" readonly>
     <button type="submit">Enviar Pedido</button>
   </form>
+  <script>
+    // Chama a função para carregar os produtos da planilha assim que o DOM estiver pronto
+    window.addEventListener('DOMContentLoaded', carregarProdutosDaPlanilha);
+  </script>
 </body>
-        </html>
-        
+</html>
+
