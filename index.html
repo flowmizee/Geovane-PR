@@ -345,11 +345,92 @@
     <button type="submit">Enviar Pedido</button>
   </form>
   <script>
-    // Chama a função para carregar os produtos da planilha assim que o DOM estiver pronto
-    window.addEventListener('DOMContentLoaded', carregarProdutosDaPlanilha);
-  </script>
-</body>
-</html>
-
-
-  
+    // Objeto que armazenará os produtos carregados da planilha
+    const produtos = {}; // Inicialmente vazio
+    // Função para carregar os dados da planilha do Google Sheets (CSV)
+    async function carregarProdutosDaPlanilha() {
+      // URL da sua planilha publicada em formato CSV:
+      const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrtGErWiwjhuVjEZgUe-6WbKpgCe8vxS1RiFXJ8QUcPthAtb0oCJJHbBX55oDghCNI_dIXz2_i4sVr/pub?output=csv";
+      try {
+        const resposta = await fetch(url);
+        const csvText = await resposta.text();
+        // Divide o CSV em linhas e remove as linhas vazias
+        const linhas = csvText.split("\n").map(linha => linha.trim()).filter(linha => linha);
+        // Remove a primeira linha (cabeçalho)
+        linhas.shift();
+        // Limpa o objeto produtos antes de adicionar os novos dados
+        for (const key in produtos) {
+          delete produtos[key];
+        }
+        // Para cada linha, assumindo que as colunas são: Nome do Produto, Preço, Emoji
+        linhas.forEach(linha => {
+          const colunas = linha.split(",").map(coluna => coluna.trim());
+          const nome = colunas[0];
+          // Substitua vírgula por ponto se necessário para o preço
+          const preco = parseFloat(colunas[1].replace(",", "."));
+          const emoji = colunas[2];
+          // Atualiza o objeto produtos
+          produtos[nome] = { preco, emoji };
+        });
+        console.log("Produtos carregados da planilha:", produtos);
+        // Atualiza os selects dos itens já existentes para mostrar as opções atualizadas
+        atualizarSelectProdutos();
+      } catch (error) {
+        console.error("Erro ao carregar os produtos da planilha:", error);
+      }
+    }
+    // Função para atualizar os selects de produto, preservando o valor selecionado se existir
+    function atualizarSelectProdutos() {
+      const selects = document.querySelectorAll("#itens-container .item-row select:first-child");
+      selects.forEach(select => {
+        const currentValue = select.value; // Armazena o valor atual
+        let optionsHTML = `<option value="">Selecione o produto</option>`;
+        optionsHTML += Object.keys(produtos)
+          .map(produto => `<option value="${produto}">${produtos[produto].emoji} ${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`)
+          .join('');
+        select.innerHTML = optionsHTML;
+        // Restaura o valor selecionado, se ele existir nas novas opções
+        if (currentValue && optionsHTML.indexOf(`value="${currentValue}"`) !== -1) {
+          select.value = currentValue;
+        }
+      });
+    }
+    // Chama a função para carregar os produtos da planilha quando o DOM estiver pronto
+    window.addEventListener('DOMContentLoaded', function() {
+      carregarProdutosDaPlanilha();
+      atualizarStatus(); // Inicia a atualização do status
+    });
+    // Função para adicionar um novo item no pedido
+    function adicionarItem() {
+      const itensContainer = document.getElementById("itens-container");
+      const novoItem = document.createElement("div");
+      novoItem.className = "item-row";
+      novoItem.innerHTML = `
+        <select onchange="atualizarPrecoTotal(this)">
+          <option value="">Selecione o produto</option>
+          ${Object.keys(produtos)
+            .map(produto => `<option value="${produto}">${produtos[produto].emoji} ${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`)
+            .join('')}
+        </select>
+        <select onchange="atualizarPrecoTotal(this)">
+          ${[...Array(10)].map((_, i) => `<option value="${i + 1}">Quantidade: ${i + 1}</option>`).join('')}
+        </select>
+        <input type="number" placeholder="Preço Total (R$)" step="0.01" readonly>
+        <button onclick="removerItem(this)">Remover</button>
+      `;
+      itensContainer.appendChild(novoItem);
+      // Atualiza o select deste novo item, caso os produtos já tenham sido carregados
+      atualizarSelectProdutos();
+    }
+    // Função para atualizar o preço total do item
+    function atualizarPrecoTotal(selectElement) {
+      const itemRow = selectElement.parentElement;
+      const produto = itemRow.querySelector('select:nth-child(1)').value;
+      const quantidade = itemRow.querySelector('select:nth-child(2)').value;
+      if (produto && quantidade) {
+        const precoTotal = (produtos[produto].preco * quantidade).toFixed(2);
+        itemRow.querySelector('input').value = precoTotal;
+        calcularTotal();
+      } else {
+        itemRow.querySelector('input').value = '';
+        ca
