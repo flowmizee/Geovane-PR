@@ -227,13 +227,9 @@
     // Função para enviar o pedido via WhatsApp com mensagem formatada
     function enviarPedido() {
       const nome = document.getElementById("nome").value;
-      const cidade = document.getElementById("cidade").value;
-      const bairro = document.getElementById("bairro").value;
-      const rua = document.getElementById("rua").value;
-      const numero = document.getElementById("numero").value;
+      const endereco = document.getElementById("endereco").value;
       const complemento = document.getElementById("complemento").value;
-      const referencia = document.getElementById("referencia").value;
-      const endereco = `${cidade}, ${bairro}, ${rua}, ${numero}`; // Concatenando o endereço
+      const pontoReferencia = document.getElementById("ponto-referencia").value;
       const taxa = document.getElementById("taxa").value;
       const pagamento = document.getElementById("pagamento").value;
       const total = document.getElementById("total").value;
@@ -256,12 +252,15 @@
         alert("Por favor, selecione um produto ou remova os itens vazios do seu pedido.");
         return;
       }
-      let mensagem = `*PEDIDO*\n\n📋 *Dados do Cliente:*\n- Nome: ${nome}\n- Endereço: ${endereco}`; // Adicionando o complemento ao endereço
+      let mensagem = `*PEDIDO*\n\n📋 *Dados do Cliente:*\n- Nome: ${nome}\n- Endereço: ${endereco}`;
       if (complemento) {
         mensagem += `\n- Complemento: ${complemento}`;
       }
-      if (referencia) {
-        mensagem += `\n- Referência: ${referencia}`;
+      if (!pontoReferencia) {
+        alert("Por favor, preencha o Ponto de Referência para facilitar a localização.");
+        return;
+      } else {
+        mensagem += `\n- Ponto de Referência: ${pontoReferencia}`;
       }
       mensagem += `\n\n📦 *Itens do Pedido:*\n${itens}\n💵 *Forma de Pagamento:* `;
       if (pagamento === 'PIX') {
@@ -274,7 +273,7 @@
       mensagem += `🚚 *Taxa de Entrega:* R$ ${taxa}\n🔴 *Total do Pedido:* R$ ${total}\n\n*Observações:* ${observacoes}`;
       const telefone = "98981729088";
       if (total > 0) {
-        const url = `whatsapp://send?phone=55${telefone}&text=${encodeURIComponent(mensagem)}`;
+        const url = `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
         window.open(url, "_blank");
       } else {
         alert("Por favor, adicione pelo menos um item ao seu pedido.");
@@ -317,11 +316,11 @@
     <label for="nome">Nome do Cliente:</label>
     <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
     <label for="endereco">Endereço de Entrega:</label>
-    <input type="text" id="endereco" name="endereco" placeholder="Cidade, Bairro, Rua, Número" required> 
-    <label for="complemento">Complemento:</label>
-    <input type="text" id="complemento" name="complemento" placeholder="Apto, Bloco, etc. (opcional)">
-    <label for="referencia">Ponto de Referência:</label>
-    <input type="text" id="referencia" name="referencia" placeholder="Em frente à padaria, próximo ao ponto de ônibus, etc. (opcional)">
+    <input type="text" id="endereco" name="endereco" placeholder="Cidade, Bairro, Rua, Número" required>
+    <label for="complemento">Complemento (opcional):</label>
+    <input type="text" id="complemento" name="complemento" placeholder="Ex: Apto. 101">
+    <label for="ponto-referencia">Ponto de Referência:</label>
+    <input type="text" id="ponto-referencia" name="ponto-referencia" placeholder="Ex: Em frente à padaria, ao lado do banco, próximo ao prédio..." required>
     <label>Itens do Pedido:</label>
     <div id="itens-container" class="itens-container">
       <!-- Os itens serão inseridos dinamicamente -->
@@ -433,6 +432,9 @@
         calcularTotal();
       } else {
         itemRow.querySelector('input').value = '';
-        car 
-
-só que eu quero nessa formato, mas com todas as funcionalidades do código que te mandei
+        calcularTotal();
+      }
+    }
+    // Função para calcular o total do pedido
+    function calcularTotal() {
+      const itensContainer = document.g
