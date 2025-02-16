@@ -7,23 +7,25 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #002a7b; /* Azul #002a7b */
+      background-color: #4A148C; /* Fundo roxo profundo para a açaíteria */
       margin: 20px;
       background-image: radial-gradient(circle at center bottom, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0) 100%);
       background-size: cover;
     }
     h1 {
       text-align: center;
-      color: white; /* Cor do texto do título */
+      color: white;
+      font-weight: bold;
+      font-size: 36px; /* Título aumentado */
     }
     form {
       max-width: 600px;
       margin: 0 auto;
-      padding: 20px; /* Espaçamento interno do formulário */
-      background-color: #000; /* Preto para o formulário */
+      padding: 20px;
+      background-color: #2C003E; /* Fundo do formulário em um roxo bem escuro */
       border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      color: white; /* Cor do texto em branco */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      color: white;
     }
     label {
       font-weight: bold;
@@ -31,66 +33,67 @@
       display: block;
     }
     input, select, textarea {
-      width: calc(100% - 20px); /* Ajusta a largura para ter padding */
+      width: calc(100% - 20px);
       padding: 10px;
       margin-top: 5px;
       margin-bottom: 15px;
       border: 1px solid #ccc;
       border-radius: 5px;
-      background-color: #333; /* Cinza um pouco mais claro para contraste */
+      background-color: #3A0A50; /* Fundo dos inputs com tom de roxo médio */
       color: white;
     }
     .item-row {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
-      padding: 10px; /* Espaçamento interno da linha */
+      padding: 10px;
+      border: 1px solid #444;
+      margin-bottom: 10px;
     }
     .item-row select, .item-row input {
-      width: 32%;
-      background-color: #000; /* Preto */
+      width: 45%;
+      background-color: #2C003E; /* Itens em um fundo roxo escuro */
     }
     .add-item {
       text-align: center;
       margin-bottom: 15px;
     }
     .taxa-fixa {
-      background-color: #333; /* Mesma cor do formulário */
+      background-color: #3A0A50;
       border: none;
       color: white;
       font-weight: bold;
     }
+    /* Botões gerais em roxo */
     button {
-      padding: 8px 15px; /* Diminui o espaçamento interno */
-      background-color: #002a7b; /* Azul do fundo da página */
+      padding: 8px 15px;
+      background-color: #6A1B9A; /* Cor primária dos botões */
       color: white;
-      font-size: 14px; /* Diminui o tamanho da fonte */
+      font-size: 14px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #001e56; /* Azul mais escuro */
-      transition: background-color 0.3s ease; /* Adiciona transição suave */
+      background-color: #4A148C; /* Cor ao passar o mouse */
+      transition: background-color 0.3s ease;
     }
-    /* Adiciona o estilo para a área de observações */
     textarea {
-      background-color: #000; /* Preto */
+      background-color: #3A0A50;
     }
-    /* Estilo específico para o botão "Remover" */
     .item-row button {
-      width: 32%; /* Mesma largura dos outros elementos */
-      padding: 8px 15px; /* Mesma altura e padding */
-      font-size: 14px; /* Mesma fonte */
+      width: 32%;
+      padding: 8px 15px;
+      font-size: 14px;
     }
-    /* Estilo para o botão "Adicionar Item" */
     .add-item button,
     form button[type="submit"] {
-      width: 100%; /* Ocupa toda a largura da div */
-      padding: 12px 20px; /* Aumenta o padding */
-      font-size: 16px; /* Aumenta o tamanho da fonte */
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 16px;
     }
     .status-container {
-      background-color: #000;
+      background-color: #2C003E; /* Status com fundo roxo escuro */
       color: #fff;
       padding: 25px 50px;
       border-radius: 8px;
@@ -103,88 +106,123 @@
       max-width: 600px;
     }
     .status-container.fechado {
-      background-color: #000;
+      background-color: #2C003E;
       color: #fff;
       font-size: 24px;
     }
     .status-container.aberto {
-      background-color: #000;
+      background-color: #2C003E;
       color: #fff;
       font-size: 24px;
     }
-    /* Estilo para os botões de opção Entrega/Retirada */
     #opcao-entrega {
       text-align: center;
       margin-bottom: 15px;
     }
+    /* Botões de Entrega/Retirada:
+       Estado não selecionado: fundo branco, texto e borda roxo (#6A1B9A).
+       Estado selecionado: fundo roxo (#6A1B9A) com texto branco.
+    */
     #opcao-entrega button {
       width: 45%;
       margin: 0 2%;
       padding: 10px;
       font-size: 16px;
+      background-color: #FFFFFF;
+      color: #6A1B9A;
+      border: 1px solid #6A1B9A;
+      border-radius: 5px;
+      cursor: pointer;
     }
     #opcao-entrega button.selected {
-      background-color: #001e56;
+      background-color: #6A1B9A;
+      color: #FFFFFF;
+    }
+    /* Área dos adicionais */
+    .extras-container {
+      width: 100%;
+      margin-top: 10px;
+    }
+    .extras-container p {
+      margin: 0 0 5px 0;
+      font-weight: bold;
+    }
+    /* Cada extra com select para quantidade (de 0 a 10) */
+    .extra-item {
+      display: inline-block;
+      margin-right: 10px;
+      font-size: 0.9em;
+    }
+    .extra-item select {
+      padding: 2px 6px;
+      font-size: 0.9em;
+      margin-left: 4px;
+    }
+    /* Descrição do produto */
+    .descricao-produto {
+      width: 100%;
+      margin-bottom: 10px;
+      color: #ccc;
+      font-size: 0.9em;
+      font-style: italic;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
     }
   </style>
   <script>
-    // Variável para guardar a opção selecionada: "entrega" ou "retirada"
-    let opcaoEntrega = "entrega"; // padrão
+    let opcaoEntrega = "entrega";
+    const produtos = {};
 
-    // Objeto que armazenará os produtos carregados da planilha
-    const produtos = {}; // Inicialmente vazio
-
-    // Função para carregar os dados da planilha do Google Sheets (CSV)
     async function carregarProdutosDaPlanilha() {
-      // URL da sua planilha publicada em formato CSV:
-      const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrtGErWiwjhuVjEZgUe-6WbKpgCe8vxS1RiFXJ8QUcPthAtb0oCJJHbBX55oDghCNI_dIXz2_i4sVr/pub?output=csv";
+      // URL atualizada para a nova planilha
+      const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwSDnox3XkB9WQBj0LOCeNj6sBz_fdkNd4p2vclcDDaPAfZ7ct8piPon5xzNd83V6RdiZUgUvXtTmQ/pub?output=csv";
       try {
         const resposta = await fetch(url);
         const csvText = await resposta.text();
-        // Divide o CSV em linhas e remove as linhas vazias
         const linhas = csvText.split("\n").map(linha => linha.trim()).filter(linha => linha);
-        // Remove a primeira linha (cabeçalho)
-        linhas.shift();
-        // Limpa o objeto produtos antes de adicionar os novos dados
-        for (const key in produtos) {
-          delete produtos[key];
-        }
-        // Para cada linha, assumindo que as colunas são: Nome do Produto, Preço, Emoji
+        linhas.shift(); // Remove cabeçalho
+
+        // Limpa produtos
+        for (const key in produtos) { delete produtos[key]; }
+
         linhas.forEach(linha => {
           const colunas = linha.split(",").map(coluna => coluna.trim());
           const nome = colunas[0];
-          // Substitua vírgula por ponto se necessário para o preço
-          const preco = parseFloat(colunas[1].replace(",", "."));
-          const emoji = colunas[2];
-          // Atualiza o objeto produtos
-          produtos[nome] = { preco, emoji };
+          const preco = parseFloat(colunas[1].replace(",", ".")) || 0;
+          const descricao = colunas[2];
+          const adicionais = [];
+          for (let i = 3; i < colunas.length; i += 2) {
+            if (colunas[i] && colunas[i+1]) {
+              adicionais.push({
+                nome: colunas[i],
+                preco: parseFloat(colunas[i+1].replace(",", ".")) || 0
+              });
+            }
+          }
+          produtos[nome] = { preco, descricao, adicionais };
         });
-        console.log("Produtos carregados da planilha:", produtos);
-        // Atualiza os selects dos itens já existentes para mostrar as opções atualizadas
+        console.log("Produtos carregados:", produtos);
         atualizarSelectProdutos();
       } catch (error) {
-        console.error("Erro ao carregar os produtos da planilha:", error);
+        console.error("Erro ao carregar os produtos:", error);
       }
     }
 
-    // Função para atualizar os selects de produto, preservando o valor selecionado se existir
     function atualizarSelectProdutos() {
       const selects = document.querySelectorAll("#itens-container .item-row select:first-child");
       selects.forEach(select => {
-        const currentValue = select.value; // Armazena o valor atual
+        const currentValue = select.value;
         let optionsHTML = `<option value="">Selecione o produto</option>`;
         optionsHTML += Object.keys(produtos)
-          .map(produto => `<option value="${produto}">${produtos[produto].emoji} ${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`)
+          .map(produto => `<option value="${produto}">${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`)
           .join('');
         select.innerHTML = optionsHTML;
-        // Restaura o valor selecionado, se ele existir nas novas opções
         if (currentValue && optionsHTML.indexOf(`value="${currentValue}"`) !== -1) {
           select.value = currentValue;
         }
       });
     }
 
-    // Função para selecionar a opção de entrega ou retirada
     function selecionarOpcao(opcao) {
       opcaoEntrega = opcao;
       document.getElementById("btn-entrega").classList.remove("selected");
@@ -197,22 +235,15 @@
       calcularTotal();
     }
 
-    // Chama a função para carregar os produtos da planilha quando o DOM estiver pronto
-    window.addEventListener('DOMContentLoaded', function() {
-      carregarProdutosDaPlanilha();
-      atualizarStatus(); // Inicia a atualização do status
-    });
-
-    // Função para adicionar um novo item no pedido
     function adicionarItem() {
       const itensContainer = document.getElementById("itens-container");
       const novoItem = document.createElement("div");
       novoItem.className = "item-row";
       novoItem.innerHTML = `
-        <select onchange="atualizarPrecoTotal(this)">
+        <select onchange="produtoSelecionado(this)">
           <option value="">Selecione o produto</option>
           ${Object.keys(produtos)
-            .map(produto => `<option value="${produto}">${produtos[produto].emoji} ${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`)
+            .map(produto => `<option value="${produto}">${produto} - R$ ${produtos[produto].preco.toFixed(2)}</option>`)
             .join('')}
         </select>
         <select onchange="atualizarPrecoTotal(this)">
@@ -220,45 +251,81 @@
         </select>
         <input type="number" placeholder="Preço Total (R$)" step="0.01" readonly>
         <button onclick="removerItem(this)">Remover</button>
+        <div class="descricao-produto"></div>
+        <div class="extras-container"></div>
       `;
       itensContainer.appendChild(novoItem);
-      // Atualiza o select deste novo item, caso os produtos já tenham sido carregados
       atualizarSelectProdutos();
     }
 
-    // Função para atualizar o preço total do item
-    function atualizarPrecoTotal(selectElement) {
-      const itemRow = selectElement.parentElement;
-      const produto = itemRow.querySelector('select:nth-child(1)').value;
-      const quantidade = itemRow.querySelector('select:nth-child(2)').value;
-      if (produto && quantidade) {
-        const precoTotal = (produtos[produto].preco * quantidade).toFixed(2);
-        itemRow.querySelector('input').value = precoTotal;
+    function produtoSelecionado(selectElement) {
+      const itemRow = selectElement.closest('.item-row');
+      const produto = selectElement.value;
+      renderDescricaoForRow(itemRow, produto);
+      renderExtrasForRow(itemRow, produto);
+      atualizarPrecoTotal(selectElement);
+    }
+
+    function renderDescricaoForRow(itemRow, produto) {
+      const descricaoContainer = itemRow.querySelector('.descricao-produto');
+      descricaoContainer.innerText = (produto && produtos[produto] && produtos[produto].descricao) ? produtos[produto].descricao : "";
+    }
+
+    function renderExtrasForRow(itemRow, produto) {
+      const extrasContainer = itemRow.querySelector('.extras-container');
+      if (produto && produtos[produto] && produtos[produto].adicionais.length > 0) {
+        let html = `<p>Adicionais:</p>`;
+        produtos[produto].adicionais.forEach(extra => {
+          html += `<div class="extra-item" data-extra-price="${extra.preco}">
+                     <span class="extra-name">${extra.nome}</span> (R$ ${extra.preco.toFixed(2)})
+                     <select class="extra-select" onchange="atualizarPrecoTotal(this)">
+                       ${[...Array(11)].map((_, i) => `<option value="${i}">${i}</option>`).join('')}
+                     </select>
+                   </div>`;
+        });
+        extrasContainer.innerHTML = html;
+      } else {
+        extrasContainer.innerHTML = "";
+      }
+    }
+
+    function atualizarPrecoTotal(element) {
+      const itemRow = element.closest('.item-row');
+      const produtoSelect = itemRow.querySelector('select:first-child');
+      const quantidadeSelect = itemRow.querySelector('select:nth-of-type(2)');
+      const produto = produtoSelect ? produtoSelect.value : "";
+      const quantidade = quantidadeSelect ? (parseInt(quantidadeSelect.value) || 1) : 1;
+      if (produto) {
+        let basePrice = Number(produtos[produto].preco) || 0;
+        let extrasSum = 0;
+        const extraItems = itemRow.querySelectorAll('.extras-container .extra-item');
+        extraItems.forEach(item => {
+          let price = Number(item.getAttribute('data-extra-price')) || 0;
+          let extraQty = parseInt(item.querySelector('.extra-select').value) || 0;
+          extrasSum += price * extraQty;
+        });
+        const totalPrice = (basePrice * quantidade) + extrasSum;
+        itemRow.querySelector('input[readonly]').value = totalPrice.toFixed(2);
         calcularTotal();
       } else {
-        itemRow.querySelector('input').value = '';
+        itemRow.querySelector('input[readonly]').value = "";
         calcularTotal();
       }
     }
 
-    // Função para calcular o total do pedido
     function calcularTotal() {
       const itensContainer = document.getElementById("itens-container").children;
       let total = 0;
-      if (itensContainer.length > 0) {
-        for (let i = 0; i < itensContainer.length; i++) {
-          const item = itensContainer[i].children;
-          const precoTotal = parseFloat(item[2].value) || 0;
-          total += precoTotal;
-        }
+      for (let i = 0; i < itensContainer.length; i++) {
+        const itemRow = itensContainer[i];
+        const precoTotal = parseFloat(itemRow.querySelector('input[readonly]').value) || 0;
+        total += precoTotal;
       }
-      // Se a opção for retirada, a taxa é zero
       const taxaEntrega = opcaoEntrega === "retirada" ? 0 : parseFloat(document.getElementById("taxa").value) || 0;
       const totalPedido = total + taxaEntrega;
       document.getElementById("total").value = totalPedido.toFixed(2);
     }
 
-    // Função para enviar o pedido via WhatsApp com mensagem formatada
     function enviarPedido() {
       const nome = document.getElementById("nome").value;
       const endereco = document.getElementById("endereco").value;
@@ -271,24 +338,32 @@
       const itensContainer = document.getElementById("itens-container").children;
       let itens = "";
       let temProdutoVazio = false;
-
       for (let i = 0; i < itensContainer.length; i++) {
-        const item = itensContainer[i].children;
-        const produtoSelecionado = item[0].value;
+        const itemRow = itensContainer[i];
+        const produtoSelecionado = itemRow.querySelector('select:first-child').value;
         if (produtoSelecionado === "") {
           temProdutoVazio = true;
           break;
         }
-        const quantidade = item[1].value;
-        const precoTotal = item[2].value;
-        itens += `${produtos[produtoSelecionado].emoji} ${produtoSelecionado} x${quantidade} - R$ ${precoTotal}\n`;
+        const quantidade = itemRow.querySelector('select:nth-of-type(2)').value;
+        const precoTotal = itemRow.querySelector('input[readonly]').value;
+        let itemText = `${produtoSelecionado} x${quantidade} - R$ ${precoTotal}\n`;
+        const extraItems = itemRow.querySelectorAll('.extras-container .extra-item');
+        extraItems.forEach(item => {
+          let extraQty = parseInt(item.querySelector('.extra-select').value) || 0;
+          if (extraQty > 0) {
+            const extraName = item.querySelector('.extra-name').innerText;
+            let extraUnitPrice = Number(item.getAttribute('data-extra-price')) || 0;
+            let extraTotal = extraUnitPrice * extraQty;
+            itemText += `   + ${extraName} x${extraQty} - R$ ${extraTotal.toFixed(2)}\n`;
+          }
+        });
+        itens += itemText;
       }
-
-      if (temProdutoVazio) {
-        alert("Por favor, selecione um produto ou remova os itens vazios do seu pedido.");
+      if (temProdutoVazio || parseFloat(total) <= 4) {
+        alert("Não é possível enviar o pedido vazio. Por favor, adicione pelo menos um item.");
         return;
       }
-
       let mensagem = `*PEDIDO*\n\n📋 *Dados do Cliente:*\n- Nome: ${nome}\n- Endereço: ${endereco}\n`;
       if (complemento) mensagem += `- Complemento: ${complemento}\n`;
       if (pontoReferencia) {
@@ -306,33 +381,31 @@
         mensagem += `Dinheiro\n`;
       }
       mensagem += `🚚 *Taxa de Entrega:* R$ ${taxa}\n🔴 *Total do Pedido:* R$ ${total}\n\n*Modo:* ${opcaoEntrega === "entrega" ? "Entrega" : "Retirada"}\n\n*Observações:* ${observacoes}`;
-
       const telefone = "98981729088";
       if (parseFloat(total) > 0) {
-        const url = `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
+        const url = `whatsapp://send?phone=+55${telefone}&text=${encodeURIComponent(mensagem)}`;
         window.open(url, "_blank");
       } else {
         alert("Por favor, adicione pelo menos um item ao seu pedido.");
       }
     }
 
-    // Função para remover um item do carrinho
     function removerItem(button) {
-      const itemRow = button.parentElement;
+      const itemRow = button.closest('.item-row');
       itemRow.remove();
       calcularTotal();
     }
 
-    // Função para atualizar a mensagem de status (aberto/fechado)
     function atualizarStatus() {
       const statusContainer = document.getElementById("status-container");
       const now = new Date();
-      const saoPauloTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const saoPauloTime = new Date(now.toLocaleString('pt-BR', { timeZone: saoPauloTimeZone }));
-      const startTime = new Date(saoPauloTime.getFullYear(), saoPauloTime.getMonth(), saoPauloTime.getDate(), 18, 0, 0);
-      const endTime = new Date(saoPauloTime.getFullYear(), saoPauloTime.getMonth(), saoPauloTime.getDate(), 22, 0, 0);
-      if (saoPauloTime >= startTime && saoPauloTime <= endTime) {
-        statusContainer.innerHTML = "Estamos Abertos 🥳";
+      // Força o uso do fuso horário Brasil-Maranhão (utilizando "America/Fortaleza")
+      const maranhaoTime = new Date(now.toLocaleString('pt-BR', { timeZone: 'America/Fortaleza' }));
+      const dayOfWeek = maranhaoTime.getDay(); // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
+      const hour = maranhaoTime.getHours();
+      // Aberto de Segunda a Sexta (dias 1 a 5) das 18h00 às 23h00
+      if (dayOfWeek >= 1 && dayOfWeek <= 5 && hour >= 18 && hour < 23) {
+        statusContainer.innerHTML = "Estamos Abertos 🥳 Segunda-feira a Sexta-feira (das 18h00 às 23h00)";
         statusContainer.classList.add("aberto");
         statusContainer.classList.remove("fechado");
       } else {
@@ -342,16 +415,19 @@
       }
     }
 
-    // Atualiza o status a cada segundo
     setInterval(atualizarStatus, 1000);
+    window.addEventListener('DOMContentLoaded', function() {
+      carregarProdutosDaPlanilha();
+      atualizarStatus();
+    });
   </script>
 </head>
 <body>
   <div class="status-container" id="status-container">
-    <!-- Aqui vai aparecer a mensagem "Estamos Abertos" ou "Estamos Fechados" -->
+    <!-- Mensagem de status -->
   </div>
   <form onsubmit="event.preventDefault(); enviarPedido();">
-    <h1>PEDIDO 🍕🍔🥤🍟</h1>
+    <h1>PEDIDO 🍇💜🍨</h1>
     <label for="nome">Nome do Cliente:</label>
     <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
     <label for="endereco">Endereço de Entrega:</label>
@@ -362,7 +438,7 @@
     <input type="text" id="ponto-referencia" name="ponto-referencia" placeholder="Ex: Em frente a padaria, ao lado do banco" required>
     <label>Itens do Pedido:</label>
     <div id="itens-container" class="itens-container">
-      <!-- Os itens serão inseridos dinamicamente -->
+      <!-- Itens adicionados dinamicamente -->
     </div>
     <div class="add-item">
       <button type="button" onclick="adicionarItem()">Adicionar Item</button>
@@ -378,7 +454,6 @@
     </select>
     <label for="observacoes">Observações:</label>
     <textarea id="observacoes" name="observacoes" placeholder="Digite suas observações" rows="4"></textarea>
-    <!-- Botões para escolher Entrega ou Retirada -->
     <label>Opção:</label>
     <div id="opcao-entrega">
       <button type="button" id="btn-entrega" onclick="selecionarOpcao('entrega')" class="selected">Entrega</button>
@@ -389,10 +464,9 @@
     <button type="submit">Enviar Pedido</button>
   </form>
   <script>
-    // Chama a função para carregar os produtos da planilha assim que o DOM estiver pronto
     window.addEventListener('DOMContentLoaded', function() {
       carregarProdutosDaPlanilha();
-      atualizarStatus(); // Inicia a atualização do status
+      atualizarStatus();
     });
   </script>
 </body>
